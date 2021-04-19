@@ -1,0 +1,17 @@
+{
+    "Id": "S3BucketAccessPolicy",
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "BucketAccess",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "${role_arn}"
+            },
+            "Action": [
+                "s3:PutObject"
+            ],
+            "Resource": "${bucket_arn}/*"
+        }
+    ]
+}
