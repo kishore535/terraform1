@@ -1,5 +1,6 @@
-variable "alb_principal_arn" {
-  description = "ARN of the principal that ALB uses to write logs."
+variable "acl" {
+  default     = "log-delivery-write"
+  description = ""
   type        = string
 }
 
@@ -69,6 +70,11 @@ variable "standard_transition_days" {
   default     = 30
   description = "Number of days to persist in the standard storage tier before moving to the infrequent access tier"
   type        = number
+}
+
+variable "tags" {
+  description = ""
+  type        = map(string)
 }
 
 variable "vpc_id" {

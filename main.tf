@@ -2,9 +2,9 @@
 # S3 BUCKET
 ###################################################################
 
-resource "aws_s3_bucket" "logs" {
-  acl           = "log-delivery-write"
-  bucket        = "${var.globally_unique_prefix}-${var.environment}-logs-archive"
+resource "aws_s3_bucket" "bucket" {
+  acl           = var.acl
+  bucket        = local.bucket_name
   force_destroy = true
 
   lifecycle_rule {
@@ -37,6 +37,11 @@ resource "aws_s3_bucket" "logs" {
     }
   }
 
+  /*logging {
+    target_bucket = aws_s3_bucket.log_bucket.id
+    target_prefix = "s3/"
+  }*/
+
   # https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-encryption.html
   # https://www.terraform.io/docs/providers/aws/r/s3_bucket.html#enable-default-server-side-encryption
   /*server_side_encryption_configuration {
@@ -64,65 +69,23 @@ resource "aws_s3_bucket" "logs" {
   })
 }
 
-resource "aws_s3_bucket" "main" {
-  acl           = var.acl
-  bucket        = local.bucket_name
-  force_destroy = true
-
-  lifecycle_rule {
-    enabled = var.glacier_enabled
-    id      = "${local.bucket_name}-glacier-lifecycle-rule"
-    prefix  = var.lifecycle_prefix
-    tags    = var.lifecycle_tags
-
-    expiration {
-      days = var.expiration_days
-    }
-
-    transition {
-      days          = var.glacier_transition_days
-      storage_class = "GLACIER"
-    }
-  }
-
-  /*logging {
-    target_bucket = aws_s3_bucket.log_bucket.id
-    target_prefix = "s3/"
-  }*/
-
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = var.sse_algorithm
-      }
-    }
-  }
-
-  versioning {
-    enabled = var.versioning_enabled
-  }
-
-  tags = merge(var.tags, {
-    Name = local.bucket_name
-  })
-}
-
 ###################################################################
 # S3 BUCKET POLICY
 ###################################################################
 
-data "template_file" "bucket_policy_template" {
+data "template_file" "main" {
   template = file("${path.module}/json/${var.policy_name}.json")
 
   vars = {
-    bucket_arn = aws_s3_bucket.main.arn
-    role_arn   = var.role_arn
+    aws_account_id    = var.aws_account_id
+    alb_principal_arn = data.aws_elb_service_account.main.arn
+    bucket_arn        = aws_s3_bucket.main.arn
   }
 }
 
-resource "aws_s3_bucket_policy" "bucket_policy" {
+resource "aws_s3_bucket_policy" "main" {
   bucket = aws_s3_bucket.main.bucket
-  policy = data.template_file.bucket_policy_template.rendered
+  policy = data.template_file.main.rendered
 }
 
 resource "aws_s3_bucket_public_access_block" "main" {
