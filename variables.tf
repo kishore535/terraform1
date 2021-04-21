@@ -82,6 +82,12 @@ variable "tags" {
   type        = map(string)
 }
 
+variable "versioning_enabled" {
+  default     = false
+  description = ""
+  type        = bool
+}
+
 variable "vpc_id" {
   description = "VPC id"
   type        = string
