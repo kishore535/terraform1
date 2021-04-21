@@ -48,6 +48,11 @@ variable "kms_master_key_id" {
   type        = string
 }
 
+variable "name" {
+  description = ""
+  type        = string
+}
+
 variable "noncurrent_version_expiration_days" {
   default     = 90
   description = "Specifies when noncurrent object versions expire."
