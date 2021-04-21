@@ -74,7 +74,7 @@ resource "aws_s3_bucket" "main" {
 ###################################################################
 
 data "template_file" "main" {
-  template = file("${path.module}/json/${var.policy_name}.json")
+  template = file("${path.module}/json/bucket-policy.json")
 
   vars = {
     aws_account_id    = var.aws_account_id
