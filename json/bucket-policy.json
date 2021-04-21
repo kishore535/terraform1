@@ -1,17 +1,32 @@
 {
-    "Id": "S3BucketAccessPolicy",
+    "Id": "S3LogsBucketPolicy",
     "Version": "2012-10-17",
     "Statement": [
         {
-            "Sid": "BucketAccess",
+            "Sid": "ApplicationLoadBalancerACL",
+            "Action": [
+                "s3:PutObject"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+                "${bucket_arn}/alb/*"
+            ],
+            "Principal": {
+                "AWS": [
+                    "${alb_principal_arn}"
+                ]
+            }
+        },
+        {
+            "Sid": "CloudFrontLogDelivery",
             "Effect": "Allow",
             "Principal": {
-                "AWS": "${role_arn}"
+                "AWS": "arn:aws:iam::${aws_account_id}:root"
             },
             "Action": [
                 "s3:PutObject"
             ],
-            "Resource": "${bucket_arn}/*"
+            "Resource": "${bucket_arn}/cloudfront/*"
         }
     ]
 }

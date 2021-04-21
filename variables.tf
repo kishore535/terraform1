@@ -1,12 +1,11 @@
-variable "acl" {
-  default     = "private"
-  description = "Canned ACL to apply to the new bucket."
+variable "alb_principal_arn" {
+  description = "ARN of the principal that ALB uses to write logs."
   type        = string
 }
 
-variable "bucket_name" {
-  description = "Name of the bucket, added as a suffix to computed bucket name."
-  type        = string
+variable "aws_account_id" {
+  default = "The account ID for the AWS account in which to add logging."
+  type    = string
 }
 
 variable "environment" {
@@ -15,19 +14,12 @@ variable "environment" {
 }
 
 variable "expiration_days" {
-  default     = 180
+  default     = 730
   description = "Number of days after which to expunge the objects"
   type        = number
 }
 
-variable "glacier_enabled" {
-  default     = false
-  description = "Determines whether a lifecycle rule is created to automatically convert objects to Glacier storage class."
-  type        = bool
-}
-
 variable "glacier_transition_days" {
-  default     = 90
   description = "Number of days after which to move the data to the glacier storage tier"
   type        = number
 }
@@ -49,15 +41,22 @@ variable "lifecycle_tags" {
   type        = map(string)
 }
 
-variable "policy_name" {
-  default     = "bucket-policy"
-  description = "Name of the JSON file containing the bucket policy."
+variable "kms_master_key_id" {
+  default     = ""
+  description = "The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of sse_algorithm as aws:kms. The default aws/s3 AWS KMS master key is used if this element is absent while the sse_algorithm is aws:kms"
   type        = string
 }
 
-variable "role_arn" {
-  description = "The ARN of the IAM role which has access to put objects in the bucket."
-  type        = string
+variable "noncurrent_version_expiration_days" {
+  default     = 90
+  description = "Specifies when noncurrent object versions expire."
+  type        = number
+}
+
+variable "noncurrent_version_transition_days" {
+  default     = 30
+  description = "Specifies when noncurrent object versions transitions"
+  type        = number
 }
 
 variable "sse_algorithm" {
@@ -66,8 +65,13 @@ variable "sse_algorithm" {
   type        = string
 }
 
-variable "versioning_enabled" {
-  default     = false
-  description = "Determines whether objects are versioned."
-  type        = bool
+variable "standard_transition_days" {
+  default     = 30
+  description = "Number of days to persist in the standard storage tier before moving to the infrequent access tier"
+  type        = number
+}
+
+variable "vpc_id" {
+  description = "VPC id"
+  type        = string
 }
