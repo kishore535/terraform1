@@ -2,7 +2,7 @@
 # S3 BUCKET
 ###################################################################
 
-resource "aws_s3_bucket" "bucket" {
+resource "aws_s3_bucket" "main" {
   acl           = var.acl
   bucket        = local.bucket_name
   force_destroy = true
