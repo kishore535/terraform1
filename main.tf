@@ -7,40 +7,12 @@ resource "aws_s3_bucket" "main" {
   bucket        = local.bucket_name
   force_destroy = true
 
-  /*lifecycle_rule {
-    enabled = true
-    id      = "${var.name_prefix}-lifecycle-rule"
-    prefix  = var.lifecycle_prefix
-    tags    = var.lifecycle_tags
-
-    expiration {
-      days = var.expiration_days
-    }
-
-    noncurrent_version_expiration {
-      days = var.noncurrent_version_expiration_days
-    }
-
-    noncurrent_version_transition {
-      days          = var.noncurrent_version_transition_days
-      storage_class = "GLACIER"
-    }
-
-    transition {
-      days          = var.standard_transition_days
-      storage_class = "STANDARD_IA"
-    }
-
-    transition {
-      days          = var.glacier_transition_days
-      storage_class = "GLACIER"
-    }
-  }*/
-
   dynamic "lifecycle_rule" {
     for_each = var.lifecycle_rules
+
     content {
-      enabled                                = lifecycle_rule.value.enabled
+      enabled = lifecycle_rule.value.enabled
+      //id      = "${var.name_prefix}-lifecycle-rule"
       prefix                                 = lifecycle_rule.value.prefix
       tags                                   = lifecycle_rule.value.tags
       abort_incomplete_multipart_upload_days = lifecycle_rule.value.abort_incomplete_multipart_upload_days
