@@ -9,7 +9,7 @@ resource "aws_s3_bucket" "main" {
 
   lifecycle_rule {
     enabled = true
-    id      = "${var.globally_unique_prefix}-${var.environment}-lifecycle-rule"
+    id      = "${var.name_prefix}-lifecycle-rule"
     prefix  = var.lifecycle_prefix
     tags    = var.lifecycle_tags
 

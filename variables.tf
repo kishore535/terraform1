@@ -9,11 +9,6 @@ variable "aws_account_id" {
   type    = string
 }
 
-variable "environment" {
-  description = "Environment name"
-  type        = string
-}
-
 variable "expiration_days" {
   default     = 730
   description = "Number of days after which to expunge the objects"
@@ -23,11 +18,6 @@ variable "expiration_days" {
 variable "glacier_transition_days" {
   description = "Number of days after which to move the data to the glacier storage tier"
   type        = number
-}
-
-variable "globally_unique_prefix" {
-  description = "Prefix added to bucket name to make it globally unique."
-  type        = string
 }
 
 variable "lifecycle_prefix" {
@@ -50,6 +40,11 @@ variable "kms_master_key_id" {
 
 variable "name" {
   description = ""
+  type        = string
+}
+
+variable "name_prefix" {
+  description = "Prefix added to bucket name."
   type        = string
 }
 
