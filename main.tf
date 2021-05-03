@@ -127,7 +127,7 @@ resource "aws_s3_bucket_public_access_block" "main" {
 # S3 BUCKET POLICY
 ###################################################################
 
-data "aws_iam_policy_document" "bucket_policy" {
+data "aws_iam_policy_document" "main" {
 
   dynamic "statement" {
     for_each = var.allow_alb_logging ? [1] : []
