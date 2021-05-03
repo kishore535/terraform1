@@ -5,8 +5,8 @@ variable "acl" {
 }
 
 variable "aws_account_id" {
-  default = "The account ID for the AWS account in which to add logging."
-  type    = string
+  description = "The account ID for the AWS account in which to add logging."
+  type        = string
 }
 
 variable "expiration_days" {
