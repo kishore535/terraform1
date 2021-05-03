@@ -5,7 +5,7 @@
 resource "aws_s3_bucket" "main" {
   acl           = var.acl
   bucket        = local.bucket_name
-  force_destroy = true
+  force_destroy = var.force_delete
 
   dynamic "lifecycle_rule" {
     for_each = var.lifecycle_rules
@@ -112,117 +112,6 @@ resource "aws_s3_bucket" "main" {
 }
 
 ###################################################################
-# S3 BUCKET POLICY
-###################################################################
-
-data "template_file" "main" {
-  template = file("${path.module}/json/bucket-policy.json")
-
-  vars = {
-    aws_account_id    = var.aws_account_id
-    alb_principal_arn = data.aws_elb_service_account.main.arn
-    bucket_arn        = aws_s3_bucket.main.arn
-  }
-}
-
-resource "aws_s3_bucket_policy" "main" {
-  bucket = aws_s3_bucket.main.bucket
-  policy = data.template_file.main.rendered
-}
-
-
-
-
-
-/*data "aws_iam_policy_document" "bucket_policy" {
-  count = module.this.enabled ? 1 : 0
-
-  dynamic "statement" {
-    for_each = var.allow_encrypted_uploads_only ? [1] : []
-
-    content {
-      sid       = "DenyIncorrectEncryptionHeader"
-      effect    = "Deny"
-      actions   = ["s3:PutObject"]
-      resources = ["arn:${data.aws_partition.current.partition}:s3:::${join("", aws_s3_bucket.default.*.id)}/*"]
-
-      principals {
-        identifiers = ["*"]
-        type        = "*"
-      }
-
-      condition {
-        test     = "StringNotEquals"
-        values   = [var.sse_algorithm]
-        variable = "s3:x-amz-server-side-encryption"
-      }
-    }
-  }
-
-  dynamic "statement" {
-    for_each = var.allow_encrypted_uploads_only ? [1] : []
-
-    content {
-      sid       = "DenyUnEncryptedObjectUploads"
-      effect    = "Deny"
-      actions   = ["s3:PutObject"]
-      resources = ["arn:${data.aws_partition.current.partition}:s3:::${join("", aws_s3_bucket.default.*.id)}/*"]
-
-      principals {
-        identifiers = ["*"]
-        type        = "*"
-      }
-
-      condition {
-        test     = "Null"
-        values   = ["true"]
-        variable = "s3:x-amz-server-side-encryption"
-      }
-    }
-  }
-
-  dynamic "statement" {
-    for_each = var.allow_ssl_requests_only ? [1] : []
-
-    content {
-      sid     = "ForceSSLOnlyAccess"
-      effect  = "Deny"
-      actions = ["s3:*"]
-      resources = [
-        "arn:${data.aws_partition.current.partition}:s3:::${join("", aws_s3_bucket.default.*.id)}",
-        "arn:${data.aws_partition.current.partition}:s3:::${join("", aws_s3_bucket.default.*.id)}/*"
-      ]
-
-      principals {
-        identifiers = ["*"]
-        type        = "*"
-      }
-
-      condition {
-        test     = "Bool"
-        values   = ["false"]
-        variable = "aws:SecureTransport"
-      }
-    }
-  }
-}
-
-data "aws_iam_policy_document" "aggregated_policy" {
-  count         = module.this.enabled ? 1 : 0
-  source_json   = var.policy
-  override_json = join("", data.aws_iam_policy_document.bucket_policy.*.json)
-}
-
-resource "aws_s3_bucket_policy" "default" {
-  count      = module.this.enabled && (var.allow_ssl_requests_only || var.allow_encrypted_uploads_only || var.policy != "") ? 1 : 0
-  bucket     = join("", aws_s3_bucket.default.*.id)
-  policy     = join("", data.aws_iam_policy_document.aggregated_policy.*.json)
-  depends_on = [aws_s3_bucket_public_access_block.default]
-}*/
-
-
-
-###################################################################
 # S3 BUCKET ACL
 ###################################################################
 
@@ -232,4 +121,81 @@ resource "aws_s3_bucket_public_access_block" "main" {
   bucket                  = aws_s3_bucket.main.bucket
   ignore_public_acls      = local.is_private
   restrict_public_buckets = local.is_private
+}
+
+###################################################################
+# S3 BUCKET POLICY
+###################################################################
+
+data "aws_iam_policy_document" "bucket_policy" {
+
+  dynamic "statement" {
+    for_each = var.allow_alb_logging ? [1] : []
+
+    content {
+      sid       = "ApplicationLoadBalancerACL"
+      effect    = "Allow"
+      actions   = ["s3:PutObject"]
+      resources = ["${aws_s3_bucket.main.arn}/alb/*"]
+
+      principals {
+        identifiers = [data.aws_elb_service_account.main.arn]
+        type        = "AWS"
+      }
+    }
+  }
+
+  dynamic "statement" {
+    for_each = var.allow_cloudfront_logging ? [1] : []
+
+    content {
+      sid       = "CloudFrontLogDelivery"
+      effect    = "Allow"
+      actions   = ["s3:PutObject"]
+      resources = ["${aws_s3_bucket.main.arn}/cloudfront/*"]
+
+      principals {
+        identifiers = ["arn:aws:iam::${var.aws_account_id}:root"]
+        type        = "AWS"
+      }
+    }
+  }
+
+  dynamic "statement" {
+    for_each = var.allow_vpc_flow_logging ? [1] : []
+
+    content {
+      sid       = "AWSLogDeliveryWrite"
+      effect    = "Allow"
+      actions   = ["s3:PutObject"]
+      resources = ["${aws_s3_bucket.main.arn}/AWSLogs/*"]
+
+      principals {
+        identifiers = ["delivery.logs.amazonaws.com"]
+        type        = "Service"
+      }
+    }
+  }
+
+  dynamic "statement" {
+    for_each = var.allow_vpc_flow_logging ? [1] : []
+
+    content {
+      sid       = "AWSLogDeliveryAclCheck"
+      effect    = "Allow"
+      actions   = ["s3:GetBucketAcl"]
+      resources = ["${aws_s3_bucket.main.arn}"]
+
+      principals {
+        identifiers = ["delivery.logs.amazonaws.com"]
+        type        = "Service"
+      }
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "main" {
+  bucket     = aws_s3_bucket.main.bucket
+  policy     = data.aws_iam_policy_document.main.json
+  depends_on = [aws_s3_bucket_public_access_block.main]
 }

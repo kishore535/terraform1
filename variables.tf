@@ -4,9 +4,33 @@ variable "acl" {
   type        = string
 }
 
+variable "allow_alb_logging" {
+  default     = false
+  description = ""
+  type        = bool
+}
+
+variable "allow_cloudfront_logging" {
+  default     = false
+  description = ""
+  type        = bool
+}
+
+variable "allow_vpc_flow_logging" {
+  default     = false
+  description = ""
+  type        = bool
+}
+
 variable "aws_account_id" {
   description = "The account ID for the AWS account in which to add logging."
   type        = string
+}
+
+variable "force_delete" {
+  default     = true
+  description = ""
+  type        = bool
 }
 
 variable "lifecycle_rules" {
