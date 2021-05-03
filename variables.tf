@@ -32,6 +32,15 @@ variable "lifecycle_tags" {
   type        = map(string)
 }
 
+variable "logging" {
+  type = object({
+    bucket_name = string
+    prefix      = string
+  })
+  default     = null
+  description = "Bucket access logging configuration."
+}
+
 variable "kms_master_key_id" {
   default     = ""
   description = "The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of sse_algorithm as aws:kms. The default aws/s3 AWS KMS master key is used if this element is absent while the sse_algorithm is aws:kms"
