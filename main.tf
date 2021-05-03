@@ -7,7 +7,7 @@ resource "aws_s3_bucket" "main" {
   bucket        = local.bucket_name
   force_destroy = true
 
-  lifecycle_rule {
+  /*lifecycle_rule {
     enabled = true
     id      = "${var.name_prefix}-lifecycle-rule"
     prefix  = var.lifecycle_prefix
@@ -34,6 +34,73 @@ resource "aws_s3_bucket" "main" {
     transition {
       days          = var.glacier_transition_days
       storage_class = "GLACIER"
+    }
+  }*/
+
+  dynamic "lifecycle_rule" {
+    for_each = var.lifecycle_rules
+    content {
+      enabled                                = lifecycle_rule.value.enabled
+      prefix                                 = lifecycle_rule.value.prefix
+      tags                                   = lifecycle_rule.value.tags
+      abort_incomplete_multipart_upload_days = lifecycle_rule.value.abort_incomplete_multipart_upload_days
+
+      noncurrent_version_expiration {
+        days = lifecycle_rule.value.noncurrent_version_expiration_days
+      }
+
+      dynamic "noncurrent_version_transition" {
+        for_each = lifecycle_rule.value.enable_glacier_transition ? [1] : []
+
+        content {
+          days          = lifecycle_rule.value.noncurrent_version_glacier_transition_days
+          storage_class = "GLACIER"
+        }
+      }
+
+      dynamic "noncurrent_version_transition" {
+        for_each = lifecycle_rule.value.enable_deeparchive_transition ? [1] : []
+
+        content {
+          days          = lifecycle_rule.value.noncurrent_version_deeparchive_transition_days
+          storage_class = "DEEP_ARCHIVE"
+        }
+      }
+
+      dynamic "transition" {
+        for_each = lifecycle_rule.value.enable_glacier_transition ? [1] : []
+
+        content {
+          days          = lifecycle_rule.value.glacier_transition_days
+          storage_class = "GLACIER"
+        }
+      }
+
+      dynamic "transition" {
+        for_each = lifecycle_rule.value.enable_deeparchive_transition ? [1] : []
+
+        content {
+          days          = lifecycle_rule.value.deeparchive_transition_days
+          storage_class = "DEEP_ARCHIVE"
+        }
+      }
+
+      dynamic "transition" {
+        for_each = lifecycle_rule.value.enable_standard_ia_transition ? [1] : []
+
+        content {
+          days          = lifecycle_rule.value.standard_transition_days
+          storage_class = "STANDARD_IA"
+        }
+      }
+
+      dynamic "expiration" {
+        for_each = lifecycle_rule.value.enable_current_object_expiration ? [1] : []
+
+        content {
+          days = lifecycle_rule.value.expiration_days
+        }
+      }
     }
   }
 

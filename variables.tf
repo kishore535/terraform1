@@ -9,27 +9,48 @@ variable "aws_account_id" {
   type        = string
 }
 
-variable "expiration_days" {
-  default     = 730
-  description = "Number of days after which to expunge the objects"
-  type        = number
-}
+variable "lifecycle_rules" {
+  default = [{
+    enabled = false
+    prefix  = ""
+    tags    = {}
 
-variable "glacier_transition_days" {
-  description = "Number of days after which to move the data to the glacier storage tier"
-  type        = number
-}
+    enable_glacier_transition        = true
+    enable_deeparchive_transition    = false
+    enable_standard_ia_transition    = false
+    enable_current_object_expiration = true
 
-variable "lifecycle_prefix" {
-  default     = ""
-  description = "Prefix filter. Used to manage object lifecycle events."
-  type        = string
-}
+    abort_incomplete_multipart_upload_days         = 90
+    noncurrent_version_glacier_transition_days     = 30
+    noncurrent_version_deeparchive_transition_days = 60
+    noncurrent_version_expiration_days             = 90
 
-variable "lifecycle_tags" {
-  default     = {}
-  description = "Tags filter. Used to manage object lifecycle events."
-  type        = map(string)
+    standard_transition_days    = 30
+    glacier_transition_days     = 60
+    deeparchive_transition_days = 90
+    expiration_days             = 730
+  }]
+  description = "A list of lifecycle rules"
+  type = list(object({
+    prefix  = string
+    enabled = bool
+    tags    = map(string)
+
+    enable_glacier_transition        = bool
+    enable_deeparchive_transition    = bool
+    enable_standard_ia_transition    = bool
+    enable_current_object_expiration = bool
+
+    abort_incomplete_multipart_upload_days         = number
+    noncurrent_version_glacier_transition_days     = number
+    noncurrent_version_deeparchive_transition_days = number
+    noncurrent_version_expiration_days             = number
+
+    standard_transition_days    = number
+    glacier_transition_days     = number
+    deeparchive_transition_days = number
+    expiration_days             = number
+  }))
 }
 
 variable "logging" {
@@ -57,28 +78,10 @@ variable "name_prefix" {
   type        = string
 }
 
-variable "noncurrent_version_expiration_days" {
-  default     = 90
-  description = "Specifies when noncurrent object versions expire."
-  type        = number
-}
-
-variable "noncurrent_version_transition_days" {
-  default     = 30
-  description = "Specifies when noncurrent object versions transitions"
-  type        = number
-}
-
 variable "sse_algorithm" {
   default     = "AES256"
   description = "The server-side encryption algorithm to use. Valid values are AES256 and aws:kms"
   type        = string
-}
-
-variable "standard_transition_days" {
-  default     = 30
-  description = "Number of days to persist in the standard storage tier before moving to the infrequent access tier"
-  type        = number
 }
 
 variable "tags" {
