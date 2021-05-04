@@ -118,8 +118,3 @@ variable "versioning_enabled" {
   description = ""
   type        = bool
 }
-
-variable "vpc_id" {
-  description = "VPC id"
-  type        = string
-}
