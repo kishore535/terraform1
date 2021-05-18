@@ -16,6 +16,12 @@ variable "allow_cloudfront_logging" {
   type        = bool
 }
 
+variable "allow_knoxville_logging" {
+  default     = true
+  description = ""
+  type        = bool
+}
+
 variable "allow_vpc_flow_logging" {
   default     = false
   description = ""

@@ -192,6 +192,31 @@ data "aws_iam_policy_document" "main" {
       }
     }
   }
+
+  dynamic "statement" {
+    for_each = var.allow_knoxville_logging ? [1] : []
+
+    content {
+      sid     = "AWSLogDeliveryWrite"
+      effect  = "Allow"
+      actions = ["s3:PutObject"]
+      resources = [
+        "arn:aws:s3:::vh-devopsx-dev-aws-service-logs/AWSLogs/*",
+        "arn:aws:s3:::vh-devopsx-dev-aws-service-logs/vpc-flow-logs/AWSLogs/104601923160/*"
+      ]
+
+      principals {
+        identifiers = ["delivery.logs.amazonaws.com"]
+        type        = "Service"
+      }
+
+      condition {
+        test     = "StringEquals"
+        values   = ["bucket-owner-full-control"]
+        variable = "s3:x-amz-acl"
+      }
+    }
+  }
 }
 
 resource "aws_s3_bucket_policy" "main" {
