@@ -17,7 +17,7 @@ variable "allow_cloudfront_logging" {
 }
 
 variable "allow_knoxville_logging" {
-  default     = true
+  default     = false
   description = ""
   type        = bool
 }
