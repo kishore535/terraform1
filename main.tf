@@ -5,16 +5,16 @@
 resource "aws_s3_bucket" "main" {
   acl           = var.acl
   bucket        = local.bucket_name
-  force_destroy = var.force_delete
+  force_destroy = var.force_destroy
 
   dynamic "lifecycle_rule" {
     for_each = var.lifecycle_rules
 
     content {
+      abort_incomplete_multipart_upload_days = lifecycle_rule.value.abort_incomplete_multipart_upload_days
       enabled                                = lifecycle_rule.value.enabled
       prefix                                 = lifecycle_rule.value.prefix
       tags                                   = lifecycle_rule.value.tags
-      abort_incomplete_multipart_upload_days = lifecycle_rule.value.abort_incomplete_multipart_upload_days
 
       noncurrent_version_expiration {
         days = lifecycle_rule.value.noncurrent_version_expiration_days

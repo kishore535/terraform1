@@ -33,7 +33,7 @@ variable "aws_account_id" {
   type        = string
 }
 
-variable "force_delete" {
+variable "force_destroy" {
   default     = true
   description = ""
   type        = bool
