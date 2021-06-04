@@ -201,8 +201,8 @@ data "aws_iam_policy_document" "main" {
       effect  = "Allow"
       actions = ["s3:PutObject"]
       resources = [
-        "arn:aws:s3:::vh-devopsx-dev-aws-service-logs/AWSLogs/*",
-        "arn:aws:s3:::vh-devopsx-dev-aws-service-logs/vpc-flow-logs/AWSLogs/104601923160/*"
+        "${aws_s3_bucket.main.arn}/AWSLogs/*",
+        "${aws_s3_bucket.main.arn}/vpc-flow-logs/AWSLogs/104601923160/*"
       ]
 
       principals {
