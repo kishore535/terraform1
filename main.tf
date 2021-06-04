@@ -201,7 +201,7 @@ data "aws_iam_policy_document" "main" {
       actions = ["s3:PutObject"]
       resources = [
         "${aws_s3_bucket.main.arn}/AWSLogs/*",
-        "${aws_s3_bucket.main.arn}/vpc-flow-logs/AWSLogs/104601923160/*"
+        "${aws_s3_bucket.main.arn}/vpc-flow-logs/AWSLogs/${var.aws_account_id}/*"
       ]
 
       principals {
