@@ -11,8 +11,7 @@ resource "aws_s3_bucket" "main" {
     for_each = var.lifecycle_rules
 
     content {
-      enabled = lifecycle_rule.value.enabled
-      //id      = "${var.name_prefix}-lifecycle-rule"
+      enabled                                = lifecycle_rule.value.enabled
       prefix                                 = lifecycle_rule.value.prefix
       tags                                   = lifecycle_rule.value.tags
       abort_incomplete_multipart_upload_days = lifecycle_rule.value.abort_incomplete_multipart_upload_days
