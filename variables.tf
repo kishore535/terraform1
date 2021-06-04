@@ -45,41 +45,41 @@ variable "lifecycle_rules" {
     prefix  = ""
     tags    = {}
 
-    enable_glacier_transition        = true
-    enable_deeparchive_transition    = false
-    enable_standard_ia_transition    = false
     enable_current_object_expiration = true
+    enable_deeparchive_transition    = false
+    enable_glacier_transition        = true
+    enable_standard_ia_transition    = false
 
     abort_incomplete_multipart_upload_days         = 90
-    noncurrent_version_glacier_transition_days     = 30
     noncurrent_version_deeparchive_transition_days = 60
     noncurrent_version_expiration_days             = 90
+    noncurrent_version_glacier_transition_days     = 30
 
-    standard_transition_days    = 30
-    glacier_transition_days     = 60
     deeparchive_transition_days = 90
     expiration_days             = 730
+    glacier_transition_days     = 60
+    standard_transition_days    = 30
   }]
   description = "A list of lifecycle rules"
   type = list(object({
-    prefix  = string
     enabled = bool
+    prefix  = string
     tags    = map(string)
 
-    enable_glacier_transition        = bool
-    enable_deeparchive_transition    = bool
-    enable_standard_ia_transition    = bool
     enable_current_object_expiration = bool
+    enable_deeparchive_transition    = bool
+    enable_glacier_transition        = bool
+    enable_standard_ia_transition    = bool
 
     abort_incomplete_multipart_upload_days         = number
-    noncurrent_version_glacier_transition_days     = number
     noncurrent_version_deeparchive_transition_days = number
     noncurrent_version_expiration_days             = number
+    noncurrent_version_glacier_transition_days     = number
 
-    standard_transition_days    = number
-    glacier_transition_days     = number
     deeparchive_transition_days = number
     expiration_days             = number
+    glacier_transition_days     = number
+    standard_transition_days    = number
   }))
 }
 
