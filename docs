@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# run "chmod u+x docs" to make this script executable
+
+terraform-docs markdown . | TEE README.md
+./push "Updated README."
